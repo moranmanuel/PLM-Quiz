@@ -1,0 +1,16 @@
+.play-button-container {
+    width: 100%;
+    display: flex;
+    justify-content: center;
+    position: absolute;
+    top: 150px;
+}
+
+.play-button {
+    height: 120px;
+    width: 120px;
+    font-weight: bold;
+    cursor: pointer;
+    user-select: none;
+    color: white;
+}
