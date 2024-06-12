@@ -1,0 +1,14 @@
+.message {
+    text-align: center;
+    margin-top: 36px
+}
+    
+.time-over-message {
+    font-size: 20px;
+    color: red;
+}
+        
+.answer-explanation-message {
+    font-size: 18px;
+    color: white;
+}

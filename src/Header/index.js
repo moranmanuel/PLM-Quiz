@@ -3,7 +3,7 @@ import './Header.css'
 
 function Header() {
     return (
-        <h1 className='header'>PLM QUIZ!</h1>
+        <h1 className='header'>PAREN LA MANO QUIZ</h1>
     );
 }
 

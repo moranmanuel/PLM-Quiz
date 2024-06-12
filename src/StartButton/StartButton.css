@@ -1,9 +1,7 @@
 .play-button-container {
-    width: 100%;
     display: flex;
     justify-content: center;
-    position: absolute;
-    top: 150px;
+    margin-top: 70px;
 }
 
 .play-button {

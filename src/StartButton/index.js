@@ -5,14 +5,20 @@ import { QuizContext } from '../QuizContext';
 
 function StartButton() {
     const {
-        setGameStarted
+        setGameStarted,
+        setIsTimerActive
     } = React.useContext(QuizContext)
+
+    const startGame = () => {
+        setGameStarted(true);
+        setIsTimerActive(true);
+    }
 
     return (
         <div className='play-button-container'>
             <FaPlayCircle 
                 className='play-button'
-                onClick={() => setGameStarted(true)}
+                onClick={() => startGame()}
             />
         </div>
     );

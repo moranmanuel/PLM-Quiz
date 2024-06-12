@@ -5,6 +5,8 @@ import { StartButton } from '../StartButton';
 import { Question } from '../Question';
 import { OptionsList } from '../OptionsList';
 import { Options } from '../Options';
+import { Timer } from '../Timer';
+import { Message } from '../Message';
 import { GameOver } from '../GameOver';
 
 function AppUI() {
@@ -19,13 +21,13 @@ function AppUI() {
       {(!gameStarted && !gameOver) && (
         <>
           <Header />
-          <StartButton/>
+          <StartButton />
         </>
       )}
       
       {gameStarted && (
         <>
-          <Question/>
+          <Question />
 
           <OptionsList>
             {optionsArraySorted.map(option => (
@@ -35,6 +37,10 @@ function AppUI() {
               />
             ))}
           </OptionsList>
+
+          <Timer />
+
+          <Message />
         </>
       )}
 
