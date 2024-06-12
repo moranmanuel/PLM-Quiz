@@ -4,11 +4,12 @@ import { QuizContext } from '../QuizContext';
 
 function Question() {
     const {
-        question
+        questionsArray,
+        aleatoryNumber
     } = React.useContext(QuizContext)
 
     return (
-        <h1 className='question'>{question()}</h1>
+        <h1 className='question'>{questionsArray[aleatoryNumber]}</h1>
     );
 }
 

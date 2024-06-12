@@ -1,5 +1,5 @@
-.TodoList {
-    margin: 0;
-    padding: 0 0 56px 0;
+.options-list {
+    margin: 60px 0 0 0;
+    padding: 0 150px 56px 150px;
     list-style: none;
 }

@@ -5,28 +5,30 @@ import { StartButton } from '../StartButton';
 import { Question } from '../Question';
 import { OptionsList } from '../OptionsList';
 import { Options } from '../Options';
+import { GameOver } from '../GameOver';
 
 function AppUI() {
   const {
     gameStarted,
-    options,
-    optionsArray
+    gameOver,
+    optionsArraySorted
   } = React.useContext(QuizContext)
 
   return (
     <>
-      {!gameStarted && (
+      {(!gameStarted && !gameOver) && (
         <>
           <Header />
           <StartButton/>
         </>
       )}
+      
       {gameStarted && (
         <>
           <Question/>
 
           <OptionsList>
-            {options.map(option => (
+            {optionsArraySorted.map(option => (
               <Options 
                 key={option}
                 text={option}
@@ -34,6 +36,10 @@ function AppUI() {
             ))}
           </OptionsList>
         </>
+      )}
+
+      {gameOver && (
+        <GameOver />
       )}
     </>
   );
