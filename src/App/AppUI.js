@@ -1,6 +1,7 @@
 import React from 'react';
 import { QuizContext } from '../QuizContext';
 import { Header } from '../Header';
+import { InputPlayerName } from '../InputPlayerName';
 import { StartButton } from '../StartButton';
 import { Question } from '../Question';
 import { OptionsList } from '../OptionsList';
@@ -21,6 +22,7 @@ function AppUI() {
       {(!gameStarted && !gameOver) && (
         <>
           <Header />
+          <InputPlayerName />
           <StartButton />
         </>
       )}

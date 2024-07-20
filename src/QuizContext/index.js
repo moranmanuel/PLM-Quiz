@@ -1,8 +1,14 @@
 import React from 'react';
+import { useLocalStorage } from './useLocalStorage';
 
 const QuizContext = React.createContext();
 
 function QuizProvider({ children }) {
+    const {
+        item: players,
+        saveItem: savePlayers
+    } = useLocalStorage('PLM_QUIZ_V1', [])
+
     const defaultQuestions = [
         'En que año empezo Paren la mano?',
         'Quien popularizo el famoso "EEEEESI"?',
@@ -48,6 +54,10 @@ function QuizProvider({ children }) {
     const [isTimerActive, setIsTimerActive] = React.useState(false); 
     const [isTimeOver, setIsTimeOver] = React.useState(false); 
     const [answersExplanation, setAnswersExplanation] = React.useState(defaultAnswersExplanation)
+    const [playerName, setPlayerName] = React.useState(players.name)
+    const [error, setError] = React.useState(false)
+    const [shake, setShake] = React.useState(false)
+
     const totalAnswers = defaultQuestions.length
 
     const checkAnswer = (text) => {
@@ -94,7 +104,17 @@ function QuizProvider({ children }) {
             setGameOver(true)
         }
     }
-    
+
+    const nameIsAlreadyTaken = () => {
+        return players.some(obj => obj.name === playerName);
+    }
+
+    const createPlayer = () => {
+        const newPlayers = [...players]
+        newPlayers.push({name: playerName, score:0})
+        savePlayers(newPlayers)
+    }
+
     React.useEffect(() => {
         if (isTimerActive && timeLeft > 0) {
             const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
@@ -123,7 +143,15 @@ function QuizProvider({ children }) {
             totalAnswers,
             checkAnswer,
             shuffleOptions,
-            answersExplanation
+            answersExplanation,
+            playerName,
+            setPlayerName,
+            nameIsAlreadyTaken,
+            error,
+            setError,
+            shake,
+            setShake,
+            createPlayer
         }}>
             {children}
         </QuizContext.Provider>

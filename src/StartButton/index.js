@@ -5,13 +5,27 @@ import { QuizContext } from '../QuizContext';
 
 function StartButton() {
     const {
+        playerName,
+        nameIsAlreadyTaken,
         setGameStarted,
-        setIsTimerActive
+        setIsTimerActive,
+        setError,
+        setShake,
+        createPlayer
     } = React.useContext(QuizContext)
 
+    
     const startGame = () => {
-        setGameStarted(true);
-        setIsTimerActive(true);
+        if (playerName && !nameIsAlreadyTaken()) {
+            createPlayer()
+            setGameStarted(true);
+            setIsTimerActive(true);        
+        } else {
+            setError(true)
+            setShake(true)
+            setTimeout(() => setShake(false), 200)
+            setTimeout(() => setShake(false), 200)
+        }
     }
 
     return (

@@ -1,0 +1,36 @@
+.input-container {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+}
+
+.input-player-name {
+    width: 300px;
+    height: 20px;
+    border: none;
+    border-radius: 2px;
+}
+
+.input-error {
+    border: 2px solid;
+    border-color: red;
+}
+
+.input-shake {
+    animation: shake 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+}
+
+@keyframes shake {
+    0% {
+        transform: translateX(0);
+    }
+    33% {
+        transform: translateX(10px);
+    }
+    66% {
+        transform: translateX(-10px);
+    }
+    100% {
+        transform: translateX(0);
+    }
+}
