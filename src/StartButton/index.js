@@ -6,7 +6,7 @@ import { QuizContext } from '../QuizContext';
 function StartButton() {
     const {
         playerName,
-        nameIsAlreadyTaken,
+        isNameAlreadyTaken,
         setGameStarted,
         setIsTimerActive,
         setError,
@@ -16,7 +16,7 @@ function StartButton() {
 
     
     const startGame = () => {
-        if (playerName && !nameIsAlreadyTaken()) {
+        if (playerName && !isNameAlreadyTaken()) {
             createPlayer()
             setGameStarted(true);
             setIsTimerActive(true);        

@@ -4,14 +4,16 @@ import './GameOver.css'
 
 function GameOver() {
     const {
-        correctAnswers,
-        totalAnswers
+        players
     } = React.useContext(QuizContext)
+
     return (
         <div className='gameover-message-container'>
-            <h1 className='gameover-message'>Respondiste bien {correctAnswers} preguntas de {totalAnswers}</h1>
+            {players.map((player) => (
+                <h1 key={player.name} className='gameover-message'>{player.name} | {player.score}</h1>
+            ))}
         </div>
-    );
+    ); 
 }
 
 export { GameOver };

@@ -48,13 +48,13 @@ function QuizProvider({ children }) {
     const [optionsArraySorted, setOptionsArraySorted] = React.useState(shuffleOptions(optionsArray[aleatoryNumber]));
     const [isAnswerCorrect, setIsAnswerCorrect] = React.useState(false);
     const [answer, setAnswer] = React.useState('');
-    const [correctAnswers, setCorrectAnswers] = React.useState(0);
+    const [puntaje, setPuntaje] = React.useState(0);
     const [disableOptions, setDisableOptions] = React.useState(false);
     const [timeLeft, setTimeLeft] = React.useState(10); 
     const [isTimerActive, setIsTimerActive] = React.useState(false); 
     const [isTimeOver, setIsTimeOver] = React.useState(false); 
     const [answersExplanation, setAnswersExplanation] = React.useState(defaultAnswersExplanation)
-    const [playerName, setPlayerName] = React.useState(players.name)
+    const [playerName, setPlayerName] = React.useState('')
     const [error, setError] = React.useState(false)
     const [shake, setShake] = React.useState(false)
 
@@ -64,7 +64,7 @@ function QuizProvider({ children }) {
         setDisableOptions(true)
         setTimeout(() => setDisableOptions(false), 2000)
         if (text === optionsArray[aleatoryNumber][0]) {
-            setCorrectAnswers(prevState => prevState+1)
+            updateScore()
             setIsAnswerCorrect(true)
             setAnswer(text)   
             setTimeout(() => setIsAnswerCorrect(false), 2000)
@@ -81,6 +81,16 @@ function QuizProvider({ children }) {
             setTimeout(() => setAnswer(''), 2000)
         }
         setIsTimerActive(false);
+    }
+
+    const updateScore = () => {
+        let newPuntaje = puntaje
+        setPuntaje(prevState => prevState+1)
+        const newPlayers = [...players]
+        const playerIndex = newPlayers.findIndex(player => player.name === playerName)
+        newPlayers[playerIndex].score = newPuntaje+1
+        newPlayers.sort((a, b) => b.score - a.score);
+        savePlayers(newPlayers)
     }
 
     const updateQuestions = () => {
@@ -105,8 +115,8 @@ function QuizProvider({ children }) {
         }
     }
 
-    const nameIsAlreadyTaken = () => {
-        return players.some(obj => obj.name === playerName);
+    const isNameAlreadyTaken = () => {
+        return players.some(obj => obj.name.toLowerCase() === playerName.toLowerCase());
     }
 
     const createPlayer = () => {
@@ -135,7 +145,7 @@ function QuizProvider({ children }) {
             optionsArraySorted,
             isAnswerCorrect,
             answer,
-            correctAnswers,
+            puntaje,
             disableOptions,
             timeLeft,
             setIsTimerActive,
@@ -146,12 +156,13 @@ function QuizProvider({ children }) {
             answersExplanation,
             playerName,
             setPlayerName,
-            nameIsAlreadyTaken,
+            isNameAlreadyTaken,
             error,
             setError,
             shake,
             setShake,
-            createPlayer
+            createPlayer,
+            players
         }}>
             {children}
         </QuizContext.Provider>
