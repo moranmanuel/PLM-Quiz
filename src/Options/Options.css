@@ -1,13 +1,15 @@
 .options {
     background-color: white;
-    margin-top: 24px;
+    margin-bottom: 60px;
     position: relative;
     box-shadow: 0px 5px 50px rgba(32, 35, 41, 0.15);
     display: flex;
     justify-content: center;
     align-items: center;
-    border-radius: 2px;
+    border-radius: 6px;
     cursor: pointer;
+    padding: 2px;
+    font-size: 18px;
 }
 
 .options:hover {

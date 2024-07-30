@@ -60,6 +60,19 @@ function QuizProvider({ children }) {
 
     const totalAnswers = defaultQuestions.length
 
+    const startGame = () => {
+        if (playerName && !isNameAlreadyTaken()) {
+            createPlayer()
+            setGameStarted(true);
+            setIsTimerActive(true);        
+        } else {
+            setError(true)
+            setShake(true)
+            setTimeout(() => setShake(false), 200)
+            setTimeout(() => setShake(false), 200)
+        }
+    }
+
     const checkAnswer = (text) => {
         setDisableOptions(true)
         setTimeout(() => setDisableOptions(false), 2000)
@@ -91,6 +104,15 @@ function QuizProvider({ children }) {
         newPlayers[playerIndex].score = newPuntaje+1
         newPlayers.sort((a, b) => b.score - a.score);
         savePlayers(newPlayers)
+        updateRanking(newPlayers)
+    }
+
+    const updateRanking = (newPlayers) => {
+        for (let i = 0; i < newPlayers.length; i++) {
+            newPlayers[i].ranking = i+1
+        }
+
+        savePlayers(newPlayers)
     }
 
     const updateQuestions = () => {
@@ -121,7 +143,7 @@ function QuizProvider({ children }) {
 
     const createPlayer = () => {
         const newPlayers = [...players]
-        newPlayers.push({name: playerName, score:0})
+        newPlayers.push({name: playerName, score:0, ranking:newPlayers.length})
         savePlayers(newPlayers)
     }
 
@@ -162,7 +184,8 @@ function QuizProvider({ children }) {
             shake,
             setShake,
             createPlayer,
-            players
+            players,
+            startGame
         }}>
             {children}
         </QuizContext.Provider>

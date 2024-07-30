@@ -8,22 +8,31 @@ function InputPlayerName() {
         playerName,
         setPlayerName,
         error,
-        shake
+        shake,
+        startGame
     } = React.useContext(QuizContext)
+
+    const onSubmit = (event) => {
+        event.preventDefault()
+        startGame()
+    }
 
     return (
         <div className='input-container'>
-            <input 
-                type='text' 
-                className={clsx('input-player-name', {
-                    'input-shake': shake,
-                    'input-error': error
-                })}
-                value={playerName}
-                onChange={(event) => {
-                    setPlayerName(event.target.value)
-                }}    
-            />
+            <form onSubmit={onSubmit}>
+                <input 
+                    type='text' 
+                    className={clsx('input-player-name', {
+                        'input-shake': shake,
+                        'input-error': error
+                    })}
+                    value={playerName}
+                    onChange={(event) => {
+                        setPlayerName(event.target.value)
+                    }}    
+                    placeholder='Ingresa tu nombre'
+                />
+            </form>
         </div>
     );
 }

@@ -1,12 +1,37 @@
 .gameover-message-container {
-    width: 100%;
+    max-width: 600px;
+    margin: 0 auto;
     height: 100vh;
     display: flex;
     flex-direction: column;
     justify-content: center;
-    align-items: center;
+}
+
+.gameover-message-container span {
+    flex: 1;
+    text-align: center;
+}
+
+.gameover-message-titles {
+    color: white;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    padding: 10px;
+    border: 1px solid black;
+    background-color: white;
+    color: black;
 }
 
 .gameover-message {
     color: white;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    padding: 20px;
+    border: 1px solid black;
+    background-color: white;
+    color: black;
+}
+
+.gameover-message-current-player {
+    background-color: #878787;
 }

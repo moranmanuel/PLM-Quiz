@@ -1,6 +1,7 @@
 import React from 'react';
 import { QuizContext } from '../QuizContext';
 import './GameOver.css'
+import clsx from 'clsx';
 
 function GameOver() {
     const {
@@ -8,43 +9,42 @@ function GameOver() {
         playerName
     } = React.useContext(QuizContext)
 
-    let elements = []
     const currentPlayerIndex = players.findIndex(player => player.name === playerName)
-
-    const renderItems = () => {
-        console.log(players[0]);
-        for (let i = 0; i < 10; i++) {
-            elements.push(<h1 key={players[i].name} className='gameover-message'>{players[i].name} | {players[i].score}</h1>)
+    const topPlayers = players.slice(0, 10);
+    const additionalPlayer = currentPlayerIndex >= 10 ? players[currentPlayerIndex] : null;
+    const currentPlayer = (name) => {
+        if (name === playerName) {
+            return true
+        } else {
+            return false
         }
-        
-        return elements
     }
 
-    if (players.length > 10 && currentPlayerIndex > 10) {
-        console.log(elements);
-        return (
-            <div className='gameover-message-container'>
-                {renderItems()}
-                <h1 key={players[currentPlayerIndex].name} className='gameover-message'>{players[currentPlayerIndex].name} | {players[currentPlayerIndex].score}</h1>
+    return (
+        <div className='gameover-message-container'>
+            <div className='gameover-message-titles'>
+                <span>PLAYER</span>
+                <span>SCORE</span>
+                <span>RANKING</span>
             </div>
-        ); 
-    } else  if (players.length > 10) {
-        for (let i = 0; i < 10; i++) {
-            return (
-                <div className='gameover-message-container'>
-                    {renderItems()}
+            {topPlayers.map(player => (
+                <div key={player.name} className={clsx('gameover-message-titles', {
+                    'gameover-message-current-player': currentPlayer(player.name)
+                })}>
+                    <span>{player.name}</span>
+                    <span>{player.score}</span>
+                    <span>{player.ranking}</span>
                 </div>
-            );         
-        }
-    } else {
-        return (
-            <div className='gameover-message-container'>
-                {players.map((player) => (
-                    <h1 key={player.name} className='gameover-message'>{player.name} | {player.score}</h1>
-                ))}
-            </div>
-        ); 
-    }
+            ))}
+            {additionalPlayer && (
+                <div key={additionalPlayer.name} className='gameover-message gameover-message-current-player'>
+                    <span>{additionalPlayer.name}</span>
+                    <span>{additionalPlayer.score}</span>
+                    <span>{additionalPlayer.ranking}</span>
+                </div>
+            )}
+        </div>
+    );
 }
 
 export { GameOver };
