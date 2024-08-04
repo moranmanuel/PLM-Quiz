@@ -1,13 +1,15 @@
 import React from 'react';
 import { useLocalStorage } from './useLocalStorage';
+import { addData } from '../Supabase/addData'
+import { supabase } from '../Supabase/supabaseClient';
 
 const QuizContext = React.createContext();
 
 function QuizProvider({ children }) {
-    const {
-        item: players,
-        saveItem: savePlayers
-    } = useLocalStorage('PLM_QUIZ_V1', [])
+    // const {
+    //     item: players,
+    //     saveItem: savePlayers
+    // } = useLocalStorage('PLM_QUIZ_V1', [])
 
     const defaultQuestions = [
         'En que año empezo Paren la mano?',
@@ -57,6 +59,17 @@ function QuizProvider({ children }) {
     const [playerName, setPlayerName] = React.useState('')
     const [error, setError] = React.useState(false)
     const [shake, setShake] = React.useState(false)
+    const [players, setPlayers] = React.useState([{ name: '', score: '', ranking: '' }]);
+    const [playersSupabase, setPlayersSupabase] = React.useState([]);
+    
+    React.useEffect(() => {
+        getPlayers();
+    }, []);
+  
+    async function getPlayers() {
+        const { data } = await supabase.from("players").select();
+        setPlayersSupabase([...data]);
+    }
 
     const totalAnswers = defaultQuestions.length
 
@@ -99,11 +112,9 @@ function QuizProvider({ children }) {
     const updateScore = () => {
         let newPuntaje = puntaje
         setPuntaje(prevState => prevState+1)
-        const newPlayers = [...players]
-        const playerIndex = newPlayers.findIndex(player => player.name === playerName)
-        newPlayers[playerIndex].score = newPuntaje+1
+        const newPlayer = {name:playerName, score:newPuntaje+1, ranking:playersSupabase.length}
+        const newPlayers = [...playersSupabase, newPlayer]
         newPlayers.sort((a, b) => b.score - a.score);
-        savePlayers(newPlayers)
         updateRanking(newPlayers)
     }
 
@@ -112,7 +123,24 @@ function QuizProvider({ children }) {
             newPlayers[i].ranking = i+1
         }
 
-        savePlayers(newPlayers)
+        deleteRecords(newPlayers)
+    }
+
+    const deleteRecords = async (newPlayers) => {
+        const { error } = await supabase.from('players').delete().gte('id', 0)
+        if (error) {
+            console.log(error);
+        }
+        updateRecords(newPlayers)
+    }
+
+    const updateRecords = async (updatedData) => {
+        console.log(updatedData);
+        
+        const error = await addData(updatedData);
+        if (error) {
+            console.log(error);
+        }
     }
 
     const updateQuestions = () => {
@@ -138,13 +166,16 @@ function QuizProvider({ children }) {
     }
 
     const isNameAlreadyTaken = () => {
-        return players.some(obj => obj.name.toLowerCase() === playerName.toLowerCase());
+        return playersSupabase && playersSupabase.some(obj => obj.name.toLowerCase() === playerName.toLowerCase());
     }
 
-    const createPlayer = () => {
-        const newPlayers = [...players]
-        newPlayers.push({name: playerName, score:0, ranking:newPlayers.length})
-        savePlayers(newPlayers)
+    const createPlayer = async () => {
+        const newPlayer = {name:playerName, score:0, ranking:players.length}
+        const error = await addData(newPlayer);
+        
+        // const newPlayers = [...players]
+        // newPlayers.push({name: playerName, score:0, ranking:newPlayers.length})
+        // savePlayers(newPlayers)
     }
 
     React.useEffect(() => {
@@ -185,7 +216,8 @@ function QuizProvider({ children }) {
             setShake,
             createPlayer,
             players,
-            startGame
+            startGame,
+            playersSupabase
         }}>
             {children}
         </QuizContext.Provider>

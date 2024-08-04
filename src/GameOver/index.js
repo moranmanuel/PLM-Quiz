@@ -5,13 +5,14 @@ import clsx from 'clsx';
 
 function GameOver() {
     const {
-        players,
+        playersSupabase,
         playerName
     } = React.useContext(QuizContext)
 
-    const currentPlayerIndex = players.findIndex(player => player.name === playerName)
-    const topPlayers = players.slice(0, 10);
-    const additionalPlayer = currentPlayerIndex >= 10 ? players[currentPlayerIndex] : null;
+    const currentPlayerIndex = playersSupabase.findIndex(player => player.name === playerName) || null;
+    const topPlayers = playersSupabase.slice(0, 10);
+    const additionalPlayer = currentPlayerIndex >= 10 ? playersSupabase[currentPlayerIndex] : null;
+
     const currentPlayer = (name) => {
         if (name === playerName) {
             return true
@@ -19,7 +20,7 @@ function GameOver() {
             return false
         }
     }
-
+    
     return (
         <div className='gameover-message-container'>
             <div className='gameover-message-titles'>
