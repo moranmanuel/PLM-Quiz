@@ -6,12 +6,18 @@ import clsx from 'clsx';
 function GameOver() {
     const {
         playersSupabase,
-        playerName
+        playerName,
+        score
     } = React.useContext(QuizContext)
-
-    const currentPlayerIndex = playersSupabase.findIndex(player => player.name === playerName) || null;
-    const topPlayers = playersSupabase.slice(0, 10);
-    const additionalPlayer = currentPlayerIndex >= 10 ? playersSupabase[currentPlayerIndex] : null;
+    
+    const players = [...playersSupabase, {name: playerName, score: score, ranking: 1}]
+    players.sort((a, b) => b.score - a.score);
+    for (let i = 0; i < players.length; i++) {    
+        players[i].ranking = i+1  
+    }
+    const currentPlayerIndex = players.findIndex(player => player.name === playerName) || null;
+    const topPlayers = players.slice(0, 10);
+    const additionalPlayer = currentPlayerIndex >= 10 ? players[currentPlayerIndex] : null;
 
     const currentPlayer = (name) => {
         if (name === playerName) {
@@ -29,7 +35,7 @@ function GameOver() {
                 <span>RANKING</span>
             </div>
             {topPlayers.map(player => (
-                <div key={player.name} className={clsx('gameover-message-titles', {
+                <div key={player.name} className={clsx('gameover-message', {
                     'gameover-message-current-player': currentPlayer(player.name)
                 })}>
                     <span>{player.name}</span>

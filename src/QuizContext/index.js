@@ -1,16 +1,10 @@
 import React from 'react';
-import { useLocalStorage } from './useLocalStorage';
 import { addData } from '../Supabase/addData'
 import { supabase } from '../Supabase/supabaseClient';
 
 const QuizContext = React.createContext();
 
 function QuizProvider({ children }) {
-    // const {
-    //     item: players,
-    //     saveItem: savePlayers
-    // } = useLocalStorage('PLM_QUIZ_V1', [])
-
     const defaultQuestions = [
         'En que año empezo Paren la mano?',
         'Quien popularizo el famoso "EEEEESI"?',
@@ -50,7 +44,7 @@ function QuizProvider({ children }) {
     const [optionsArraySorted, setOptionsArraySorted] = React.useState(shuffleOptions(optionsArray[aleatoryNumber]));
     const [isAnswerCorrect, setIsAnswerCorrect] = React.useState(false);
     const [answer, setAnswer] = React.useState('');
-    const [puntaje, setPuntaje] = React.useState(0);
+    const [score, setScore] = React.useState(0);
     const [disableOptions, setDisableOptions] = React.useState(false);
     const [timeLeft, setTimeLeft] = React.useState(10); 
     const [isTimerActive, setIsTimerActive] = React.useState(false); 
@@ -59,7 +53,6 @@ function QuizProvider({ children }) {
     const [playerName, setPlayerName] = React.useState('')
     const [error, setError] = React.useState(false)
     const [shake, setShake] = React.useState(false)
-    const [players, setPlayers] = React.useState([{ name: '', score: '', ranking: '' }]);
     const [playersSupabase, setPlayersSupabase] = React.useState([]);
     
     React.useEffect(() => {
@@ -67,7 +60,7 @@ function QuizProvider({ children }) {
     }, []);
   
     async function getPlayers() {
-        const { data } = await supabase.from("players").select();
+        const { data } = await supabase.from("players").select().order('score', {ascending: false });
         setPlayersSupabase([...data]);
     }
 
@@ -110,36 +103,22 @@ function QuizProvider({ children }) {
     }
 
     const updateScore = () => {
-        let newPuntaje = puntaje
-        setPuntaje(prevState => prevState+1)
-        const newPlayer = {name:playerName, score:newPuntaje+1, ranking:playersSupabase.length}
-        const newPlayers = [...playersSupabase, newPlayer]
-        newPlayers.sort((a, b) => b.score - a.score);
-        updateRanking(newPlayers)
+        setScore(prevState => prevState+1)
+        updateRanking()
     }
 
-    const updateRanking = (newPlayers) => {
-        for (let i = 0; i < newPlayers.length; i++) {
-            newPlayers[i].ranking = i+1
+    const updateRanking = () => {
+        for (let i = 0; i < playersSupabase.length; i++) {
+            playersSupabase[i].ranking = i+1
         }
 
-        deleteRecords(newPlayers)
+        updateRecords()
     }
 
-    const deleteRecords = async (newPlayers) => {
-        const { error } = await supabase.from('players').delete().gte('id', 0)
-        if (error) {
-            console.log(error);
-        }
-        updateRecords(newPlayers)
-    }
-
-    const updateRecords = async (updatedData) => {
-        console.log(updatedData);
-        
-        const error = await addData(updatedData);
-        if (error) {
-            console.log(error);
+    const updateRecords = async () => {
+        await supabase.from('players').update({ score: score + 1 }).eq('name', playerName)
+        for (let i = 0; i < playersSupabase.length; i++) {
+            await supabase.from('players').update({ ranking: i+1 }).eq('name', playersSupabase[i].name)
         }
     }
 
@@ -170,12 +149,8 @@ function QuizProvider({ children }) {
     }
 
     const createPlayer = async () => {
-        const newPlayer = {name:playerName, score:0, ranking:players.length}
+        const newPlayer = {name:playerName, score:0, ranking:playersSupabase.length}
         const error = await addData(newPlayer);
-        
-        // const newPlayers = [...players]
-        // newPlayers.push({name: playerName, score:0, ranking:newPlayers.length})
-        // savePlayers(newPlayers)
     }
 
     React.useEffect(() => {
@@ -198,7 +173,6 @@ function QuizProvider({ children }) {
             optionsArraySorted,
             isAnswerCorrect,
             answer,
-            puntaje,
             disableOptions,
             timeLeft,
             setIsTimerActive,
@@ -215,9 +189,9 @@ function QuizProvider({ children }) {
             shake,
             setShake,
             createPlayer,
-            players,
             startGame,
-            playersSupabase
+            playersSupabase,
+            score
         }}>
             {children}
         </QuizContext.Provider>

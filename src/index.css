@@ -20,3 +20,7 @@ code {
   position: relative;
   max-height: 100vh;
 }
+
+* {
+    user-select: none;
+}

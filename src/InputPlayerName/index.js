@@ -31,6 +31,7 @@ function InputPlayerName() {
                         setPlayerName(event.target.value)
                     }}    
                     placeholder='Ingresa tu nombre'
+                    autoFocus
                 />
             </form>
         </div>
