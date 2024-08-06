@@ -5,27 +5,23 @@ import { supabase } from '../Supabase/supabaseClient';
 const QuizContext = React.createContext();
 
 function QuizProvider({ children }) {
-    const defaultQuestions = [
-        'En que año empezo Paren la mano?',
-        'Quien popularizo el famoso "EEEEESI"?',
-        'Quien es el integrante del programa con mejor asistencia?'
-    ]
+    // const defaultQuestions = [
+    //     'En que año empezo Paren la mano?',
+    //     'Quien popularizo el famoso "EEEEESI"?',
+    //     'Quien es el integrante del programa con mejor asistencia?'
+    // ]
     
-    const defaultOptions = [
-        ['2022', '2021', '2023', '2024'],
-        ['Alfredo', 'Luquitas', 'German', 'Roberto'],
-        ['Alfredo', 'German', 'Roberto', 'Luquitas']
-    ]
+    // const defaultOptions = [
+    //     ['2022', '2021', '2023', '2024'],
+    //     ['Alfredo', 'Luquitas', 'German', 'Roberto'],
+    //     ['Alfredo', 'German', 'Roberto', 'Luquitas']
+    // ]
 
-    const defaultAnswersExplanation = [
-        'PLM empezo en 2022, mas especificamente el 1 de marzo fue el primer programa',
-        'La broma empezo como una exageracion de grito de messi y rapidamente se hizo furor',
-        'Segun Jazmin Badia, Alfredo es el integrante que mas asistio al programa seguido por el intrepido Beder'
-    ]
-
-    const aleatory = (max) => {
-        return Math.floor(Math.random() * ((max -1) - 0 + 1) + 0)
-    }
+    // const defaultAnswersExplanation = [
+    //     'PLM empezo en 2022, mas especificamente el 1 de marzo fue el primer programa',
+    //     'La broma empezo como una exageracion de grito de messi y rapidamente se hizo furor',
+    //     'Segun Jazmin Badia, Alfredo es el integrante que mas asistio al programa seguido por el intrepido Beder'
+    // ]
 
     const shuffleOptions = (arr) => {
         let newSortedArray = [...arr]
@@ -38,10 +34,11 @@ function QuizProvider({ children }) {
 
     const [gameStarted, setGameStarted] = React.useState(false);
     const [gameOver, setGameOver] = React.useState(false);
+    const [quizQuestions, setQuizQuestions] = React.useState([]);
     const [questionsArray, setQuestionsArray] = React.useState(defaultQuestions);
     const [optionsArray, setOptionsArray] = React.useState(defaultOptions);
-    const [aleatoryNumber, setAleatoryNumber] = React.useState(aleatory(questionsArray.length));
-    const [optionsArraySorted, setOptionsArraySorted] = React.useState(shuffleOptions(optionsArray[aleatoryNumber]));
+    const [questionNumber, setQuestionNumber] = React.useState(0);
+    const [optionsArraySorted, setOptionsArraySorted] = React.useState(shuffleOptions(quizQuestions[questionNumber].options));
     const [isAnswerCorrect, setIsAnswerCorrect] = React.useState(false);
     const [answer, setAnswer] = React.useState('');
     const [score, setScore] = React.useState(0);
@@ -57,6 +54,7 @@ function QuizProvider({ children }) {
     
     React.useEffect(() => {
         getPlayers();
+        getQuestions();
     }, []);
   
     async function getPlayers() {
@@ -64,7 +62,10 @@ function QuizProvider({ children }) {
         setPlayersSupabase([...data]);
     }
 
-    const totalAnswers = defaultQuestions.length
+    async function getQuestions() {
+        const { data } = await supabase.from("quiz_questions").select('*').eq('is_active', true).order('random()');
+        setQuizQuestions([...data]);
+    }
 
     const startGame = () => {
         if (playerName && !isNameAlreadyTaken()) {
@@ -122,20 +123,11 @@ function QuizProvider({ children }) {
         }
     }
 
-    const updateQuestions = () => {
-        if (questionsArray.length > 1) {
-            const newQuestionsArray = [...questionsArray]
-            const newOptionsArray = [...optionsArray]
-            const newAnswersExplanation = [...answersExplanation]
-            newQuestionsArray.splice(aleatoryNumber, 1)
-            newOptionsArray.splice(aleatoryNumber, 1)
-            newAnswersExplanation.splice(aleatoryNumber, 1)
-            let newAleatoryNumber = aleatory(newQuestionsArray.length)
-            setQuestionsArray(newQuestionsArray)
-            setOptionsArray(newOptionsArray)
-            setAnswersExplanation(newAnswersExplanation)
-            setAleatoryNumber(newAleatoryNumber)
-            setOptionsArraySorted(shuffleOptions(newOptionsArray[newAleatoryNumber]))
+    const updateQuestions = async () => {
+        await supabase.from('quiz_questions').update({ is_active: false }).eq('id', quizQuestions[questionNumber].id)
+
+        if (quizQuestions.length > 1) {
+            setQuestionNumber((prev) => prev + 1)
             setTimeLeft(10);
             setIsTimerActive(true)
         } else {
@@ -177,7 +169,6 @@ function QuizProvider({ children }) {
             timeLeft,
             setIsTimerActive,
             isTimeOver,
-            totalAnswers,
             checkAnswer,
             shuffleOptions,
             answersExplanation,
