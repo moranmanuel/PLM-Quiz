@@ -5,40 +5,10 @@ import { supabase } from '../Supabase/supabaseClient';
 const QuizContext = React.createContext();
 
 function QuizProvider({ children }) {
-    // const defaultQuestions = [
-    //     'En que año empezo Paren la mano?',
-    //     'Quien popularizo el famoso "EEEEESI"?',
-    //     'Quien es el integrante del programa con mejor asistencia?'
-    // ]
-    
-    // const defaultOptions = [
-    //     ['2022', '2021', '2023', '2024'],
-    //     ['Alfredo', 'Luquitas', 'German', 'Roberto'],
-    //     ['Alfredo', 'German', 'Roberto', 'Luquitas']
-    // ]
-
-    // const defaultAnswersExplanation = [
-    //     'PLM empezo en 2022, mas especificamente el 1 de marzo fue el primer programa',
-    //     'La broma empezo como una exageracion de grito de messi y rapidamente se hizo furor',
-    //     'Segun Jazmin Badia, Alfredo es el integrante que mas asistio al programa seguido por el intrepido Beder'
-    // ]
-
-    const shuffleOptions = (arr) => {
-        let newSortedArray = [...arr]
-        for (let i = newSortedArray.length - 1; i > 0; i--) {
-            const j = Math.floor(Math.random() * (i + 1));
-            [newSortedArray[i], newSortedArray[j]] = [newSortedArray[j], newSortedArray[i]]
-        }
-        return newSortedArray
-    }
-
     const [gameStarted, setGameStarted] = React.useState(false);
     const [gameOver, setGameOver] = React.useState(false);
     const [quizQuestions, setQuizQuestions] = React.useState([]);
-    const [questionsArray, setQuestionsArray] = React.useState(defaultQuestions);
-    const [optionsArray, setOptionsArray] = React.useState(defaultOptions);
-    const [questionNumber, setQuestionNumber] = React.useState(0);
-    const [optionsArraySorted, setOptionsArraySorted] = React.useState(shuffleOptions(quizQuestions[questionNumber].options));
+    const [optionsArraySorted, setOptionsArraySorted] = React.useState([]);
     const [isAnswerCorrect, setIsAnswerCorrect] = React.useState(false);
     const [answer, setAnswer] = React.useState('');
     const [score, setScore] = React.useState(0);
@@ -46,7 +16,6 @@ function QuizProvider({ children }) {
     const [timeLeft, setTimeLeft] = React.useState(10); 
     const [isTimerActive, setIsTimerActive] = React.useState(false); 
     const [isTimeOver, setIsTimeOver] = React.useState(false); 
-    const [answersExplanation, setAnswersExplanation] = React.useState(defaultAnswersExplanation)
     const [playerName, setPlayerName] = React.useState('')
     const [error, setError] = React.useState(false)
     const [shake, setShake] = React.useState(false)
@@ -56,15 +25,29 @@ function QuizProvider({ children }) {
         getPlayers();
         getQuestions();
     }, []);
-  
+    
+    const shuffleArray = (array) => {
+        for (let i = array.length - 1; i > 0; i--) {
+            const j = Math.floor(Math.random() * (i + 1));
+            [array[i], array[j]] = [array[j], array[i]];
+        }
+        return array;
+    }
+    
     async function getPlayers() {
         const { data } = await supabase.from("players").select().order('score', {ascending: false });
         setPlayersSupabase([...data]);
     }
 
     async function getQuestions() {
-        const { data } = await supabase.from("quiz_questions").select('*').eq('is_active', true).order('random()');
-        setQuizQuestions([...data]);
+        const { data } = await supabase.from("quiz_questions").select();
+        
+        const shuffledData = shuffleArray(data)
+        setQuizQuestions([...shuffledData]);
+        
+        if (data.length > 0) {
+            setOptionsArraySorted(shuffleArray(data[0].options))
+        }
     }
 
     const startGame = () => {
@@ -83,7 +66,7 @@ function QuizProvider({ children }) {
     const checkAnswer = (text) => {
         setDisableOptions(true)
         setTimeout(() => setDisableOptions(false), 2000)
-        if (text === optionsArray[aleatoryNumber][0]) {
+        if (text === quizQuestions[0].correct_answer) {
             updateScore()
             setIsAnswerCorrect(true)
             setAnswer(text)   
@@ -124,12 +107,12 @@ function QuizProvider({ children }) {
     }
 
     const updateQuestions = async () => {
-        await supabase.from('quiz_questions').update({ is_active: false }).eq('id', quizQuestions[questionNumber].id)
-
-        if (quizQuestions.length > 1) {
-            setQuestionNumber((prev) => prev + 1)
+        quizQuestions.splice(0,1)
+        
+        if (quizQuestions.length > 0) {
             setTimeLeft(10);
             setIsTimerActive(true)
+            setOptionsArraySorted(shuffleArray(quizQuestions[0].options))
         } else {
             setGameStarted(false)
             setGameOver(true)
@@ -142,11 +125,11 @@ function QuizProvider({ children }) {
 
     const createPlayer = async () => {
         const newPlayer = {name:playerName, score:0, ranking:playersSupabase.length}
-        const error = await addData(newPlayer);
+        await addData(newPlayer);
     }
 
     React.useEffect(() => {
-        if (isTimerActive && timeLeft > 0) {
+        if (isTimerActive && !isTimeOver) {
             const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
             return () => clearTimeout(timer);
         } else if (timeLeft === 0) {
@@ -158,31 +141,21 @@ function QuizProvider({ children }) {
         <QuizContext.Provider value={{
             gameStarted,
             gameOver,
-            setGameStarted,
-            questionsArray,
-            optionsArray,
-            aleatoryNumber,
             optionsArraySorted,
             isAnswerCorrect,
             answer,
             disableOptions,
             timeLeft,
-            setIsTimerActive,
             isTimeOver,
             checkAnswer,
-            shuffleOptions,
-            answersExplanation,
             playerName,
             setPlayerName,
-            isNameAlreadyTaken,
             error,
-            setError,
             shake,
-            setShake,
-            createPlayer,
             startGame,
             playersSupabase,
-            score
+            score,
+            quizQuestions
         }}>
             {children}
         </QuizContext.Provider>

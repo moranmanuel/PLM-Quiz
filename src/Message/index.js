@@ -8,11 +8,10 @@ function Message() {
     const {
         isTimeOver,
         answer,
-        answersExplanation,
-        aleatoryNumber
+        quizQuestions
     } = React.useContext(QuizContext)
 
-    const answerExplanation = answersExplanation[aleatoryNumber] 
+    const answerExplanation = quizQuestions[0].answer_explanation 
 
     return (
         <p className={clsx('message', {
