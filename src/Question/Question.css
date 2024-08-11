@@ -5,3 +5,16 @@
     margin-bottom: 80px;
     font-size: 40px;
 }
+
+.large-question {
+    margin-top: 50px;
+    margin-bottom: 70px;
+}
+
+@media only screen and (max-width: 768px) {
+    .question {
+        margin-top: 90px;
+        margin-bottom: 90px;
+        font-size: 32px;
+    }
+}

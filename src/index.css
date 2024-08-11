@@ -16,11 +16,18 @@ code {
 }
 
 #root {
-  margin: 0 24px;
+  margin: 0 250px;
   position: relative;
   max-height: 100vh;
 }
 
+@media only screen and (max-width: 768px) {
+  #root {
+      margin: 0 20px;
+  }
+}
+
 * {
     user-select: none;
+    max-height: 100vh;
 }

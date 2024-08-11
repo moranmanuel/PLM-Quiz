@@ -6,8 +6,9 @@ import { StartButton } from '../StartButton';
 import { Question } from '../Question';
 import { OptionsList } from '../OptionsList';
 import { Options } from '../Options';
-import { Timer } from '../Timer';
+import { QuestionCounter } from '../QuestionCounter';
 import { Message } from '../Message';
+import { Timer } from '../Timer';
 import { GameOver } from '../GameOver';
 
 function AppUI() {
@@ -40,9 +41,11 @@ function AppUI() {
             ))}
           </OptionsList>
 
-          <Timer />
+          <QuestionCounter />
 
           <Message />
+
+          <Timer />
         </>
       )}
 

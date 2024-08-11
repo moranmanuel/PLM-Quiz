@@ -9,13 +9,15 @@ function Options({ text }) {
         checkAnswer,
         isAnswerCorrect,
         answer,
-        disableOptions
+        disableOptions,
+        quizQuestions
     } = React.useContext(QuizContext)
     
     return (
         <li 
             className={clsx('options', {
-                'options-correct': isAnswerCorrect && answer === text,
+                'last-option': quizQuestions[0].options[3] === text,
+                'options-correct': answer && quizQuestions[0].correct_answer === text,
                 'options-incorrect': !isAnswerCorrect && answer === text,
                 'clicked' : disableOptions
             })}

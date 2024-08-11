@@ -1,0 +1,7 @@
+.question-counter {
+    font-size: 22px;
+    color: white;
+    position: fixed;
+    left: 50px;
+    bottom: 30px;
+}

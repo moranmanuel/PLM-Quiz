@@ -1,5 +1,5 @@
 import React from 'react';
-import { addData } from '../Supabase/addData'
+import { addData } from '../Supabase/addData';
 import { supabase } from '../Supabase/supabaseClient';
 
 const QuizContext = React.createContext();
@@ -17,14 +17,10 @@ function QuizProvider({ children }) {
     const [isTimerActive, setIsTimerActive] = React.useState(false); 
     const [isTimeOver, setIsTimeOver] = React.useState(false); 
     const [playerName, setPlayerName] = React.useState('')
-    const [error, setError] = React.useState(false)
-    const [shake, setShake] = React.useState(false)
+    const [error, setError] = React.useState(false);
+    const [shake, setShake] = React.useState(false);
     const [playersSupabase, setPlayersSupabase] = React.useState([]);
-    
-    React.useEffect(() => {
-        getPlayers();
-        getQuestions();
-    }, []);
+    const [totalQuestions, setTotalQuestions] = React.useState();
     
     const shuffleArray = (array) => {
         for (let i = array.length - 1; i > 0; i--) {
@@ -33,6 +29,11 @@ function QuizProvider({ children }) {
         }
         return array;
     }
+
+    React.useEffect(() => {
+        getPlayers();
+        getQuestions();
+    }, []);
     
     async function getPlayers() {
         const { data } = await supabase.from("players").select().order('score', {ascending: false });
@@ -42,100 +43,109 @@ function QuizProvider({ children }) {
     async function getQuestions() {
         const { data } = await supabase.from("quiz_questions").select();
         
-        const shuffledData = shuffleArray(data)
+        const shuffledData = shuffleArray(data);
         setQuizQuestions([...shuffledData]);
+        setTotalQuestions(data.length)
         
         if (data.length > 0) {
-            setOptionsArraySorted(shuffleArray(data[0].options))
+            setOptionsArraySorted(shuffleArray(data[0].options));
         }
     }
-
+    
     const startGame = () => {
         if (playerName && !isNameAlreadyTaken()) {
-            createPlayer()
+            createPlayer();
             setGameStarted(true);
             setIsTimerActive(true);        
         } else {
-            setError(true)
-            setShake(true)
-            setTimeout(() => setShake(false), 200)
-            setTimeout(() => setShake(false), 200)
+            setError(true);
+            setShake(true);
+            setTimeout(() => setShake(false), 200);
+            setTimeout(() => setShake(false), 200);
+        }
+    }
+    
+    const isNameAlreadyTaken = () => {
+        return playersSupabase && playersSupabase.some(obj => obj.name.toLowerCase() === playerName.toLowerCase());
+    }
+    
+    const createPlayer = async () => {
+        const newPlayer = {name:playerName, score:0, ranking:playersSupabase.length};
+        await addData(newPlayer);
+    }
+    
+    const largeQuestion = () => {
+        if (quizQuestions[0].question.length > 55) {
+            return true;
+        } else {
+            return false;
         }
     }
 
     const checkAnswer = (text) => {
-        setDisableOptions(true)
-        setTimeout(() => setDisableOptions(false), 2000)
+        setDisableOptions(true);
+        setTimeout(() => setDisableOptions(false), 3000);
         if (text === quizQuestions[0].correct_answer) {
-            updateScore()
-            setIsAnswerCorrect(true)
-            setAnswer(text)   
-            setTimeout(() => setIsAnswerCorrect(false), 2000)
-            setTimeout(() => setAnswer(''), 2000)
-            setTimeout(() => updateQuestions(), 2000)
+            updateScore();
+            setIsAnswerCorrect(true);
+            setAnswer(text);
+            setTimeout(() => setIsAnswerCorrect(false), 3000);
+            setTimeout(() => setAnswer(''), 3000);
+            setTimeout(() => updateQuestions(), 3000);
         } else if (!text) {
-            setIsTimeOver(true)
-            setTimeout(() => updateQuestions(), 2000)
-            setTimeout(() => setIsTimeOver(false), 2000)
+            setIsTimeOver(true);
+            setTimeout(() => updateQuestions(), 3000);
+            setTimeout(() => setIsTimeOver(false), 3000);
         } else {
-            setIsAnswerCorrect(false)
-            setAnswer(text)   
-            setTimeout(() => updateQuestions(), 2000)
-            setTimeout(() => setAnswer(''), 2000)
+            setIsAnswerCorrect(false);
+            setAnswer(text);
+            setTimeout(() => updateQuestions(), 3000);
+            setTimeout(() => setAnswer(''), 3000);
         }
         setIsTimerActive(false);
     }
 
     const updateScore = () => {
-        setScore(prevState => prevState+1)
-        updateRanking()
+        setScore(prevState => prevState+1);
+        updateRanking();
     }
 
     const updateRanking = () => {
         for (let i = 0; i < playersSupabase.length; i++) {
-            playersSupabase[i].ranking = i+1
+            playersSupabase[i].ranking = i+1;
         }
 
-        updateRecords()
+        updateRecords();
     }
 
     const updateRecords = async () => {
-        await supabase.from('players').update({ score: score + 1 }).eq('name', playerName)
+        await supabase.from('players').update({ score: score + 1 }).eq('name', playerName);
         for (let i = 0; i < playersSupabase.length; i++) {
-            await supabase.from('players').update({ ranking: i+1 }).eq('name', playersSupabase[i].name)
+            await supabase.from('players').update({ ranking: i+1 }).eq('name', playersSupabase[i].name);
         }
     }
 
     const updateQuestions = async () => {
-        quizQuestions.splice(0,1)
+        quizQuestions.splice(0,1);
         
         if (quizQuestions.length > 0) {
             setTimeLeft(10);
-            setIsTimerActive(true)
-            setOptionsArraySorted(shuffleArray(quizQuestions[0].options))
+            setIsTimerActive(true);
+            setOptionsArraySorted(shuffleArray(quizQuestions[0].options));
         } else {
-            setGameStarted(false)
-            setGameOver(true)
+            setGameStarted(false);
+            setGameOver(true);
         }
-    }
-
-    const isNameAlreadyTaken = () => {
-        return playersSupabase && playersSupabase.some(obj => obj.name.toLowerCase() === playerName.toLowerCase());
-    }
-
-    const createPlayer = async () => {
-        const newPlayer = {name:playerName, score:0, ranking:playersSupabase.length}
-        await addData(newPlayer);
     }
 
     React.useEffect(() => {
-        if (isTimerActive && !isTimeOver) {
-            const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 1000);
+        if (isTimerActive && timeLeft > 0) {
+            const timer = setTimeout(() => setTimeLeft(timeLeft - 1), 100000);
             return () => clearTimeout(timer);
         } else if (timeLeft === 0) {
-            checkAnswer()
+            checkAnswer();
         }
-    }, [isTimerActive, timeLeft]);
+    }, [isTimerActive, timeLeft])
 
     return (
         <QuizContext.Provider value={{
@@ -155,7 +165,9 @@ function QuizProvider({ children }) {
             startGame,
             playersSupabase,
             score,
-            quizQuestions
+            quizQuestions,
+            totalQuestions,
+            largeQuestion
         }}>
             {children}
         </QuizContext.Provider>
