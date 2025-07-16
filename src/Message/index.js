@@ -22,7 +22,7 @@ function Message() {
             'large-questions' : largeQuestion()
         })}>{clsx({
             'Se acabo el tiempo!': isTimeOver,
-            [answerExplanation]: answer
+            [answerExplanation]: answer || isTimeOver
         })}
         </p>
     );

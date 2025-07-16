@@ -94,8 +94,10 @@ function QuizProvider({ children }) {
             setTimeout(() => updateQuestions(), 3000);
         } else if (!text) {
             setIsTimeOver(true);
+            setAnswer("a");
             setTimeout(() => updateQuestions(), 3000);
             setTimeout(() => setIsTimeOver(false), 3000);
+            setTimeout(() => setAnswer(''), 3000);
         } else {
             setIsAnswerCorrect(false);
             setAnswer(text);
