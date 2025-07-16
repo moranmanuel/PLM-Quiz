@@ -83,30 +83,30 @@ function QuizProvider({ children }) {
     }
 
     const checkAnswer = (text) => {
+        if (!isTimerActive) return;
+
         setDisableOptions(true);
-        setTimeout(() => setDisableOptions(false), 3000);
+        setIsTimerActive(false);
+
         if (text === quizQuestions[0].correct_answer) {
             updateScore();
             setIsAnswerCorrect(true);
-            setAnswer(text);
-            setTimeout(() => setIsAnswerCorrect(false), 3000);
-            setTimeout(() => setAnswer(''), 3000);
-            setTimeout(() => updateQuestions(), 3000);
         } else if (!text) {
             setIsTimeOver(true);
-            setAnswer("a");
-            setTimeout(() => updateQuestions(), 3000);
-            setTimeout(() => setIsTimeOver(false), 3000);
-            setTimeout(() => setAnswer(''), 3000);
         } else {
             setIsAnswerCorrect(false);
-            setAnswer(text);
-            setTimeout(() => updateQuestions(), 3000);
-            setTimeout(() => setAnswer(''), 3000);
         }
-        setIsTimerActive(false);
-    }
 
+        setAnswer(text || "a");
+
+        setTimeout(() => {
+            updateQuestions();
+            setIsAnswerCorrect(false);
+            setIsTimeOver(false);
+            setAnswer('');
+            setDisableOptions(false);
+        }, 3000);
+    }
     const updateScore = () => {
         setScore(prevState => prevState+1);
         updateRanking();
